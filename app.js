@@ -44,6 +44,8 @@ app.get("/", (req, res) => {
         res.render("list", { day: day, tasks: data })
     })
 })
+
+// add new item
 app.post("/", (req, res) => {
     let newtask = req.body.task;
     if (newtask != "") {
@@ -56,6 +58,13 @@ app.post("/", (req, res) => {
     }
 })
 
+// delete item
+app.post("/delete",(req,res)=>{ 
+    // console.log(req.body.checkbox);
+    Item.deleteOne({name:req.body.checkbox}).then(()=>{
+        res.redirect("/")
+    })
+})
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("LISTNING ON PORT 3000");
