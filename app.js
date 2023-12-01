@@ -1,12 +1,17 @@
 const express = require("express");
 const bodyparser = require("body-parser");
+const mongoose = require("mongoose")
 
 const app = express();
 app.set('view engine', 'ejs');
 app.use(express.static("public"))
 app.use(bodyparser.urlencoded({ extended: true }));
+mongoose.connect("mongodb://localhost:27017/todolistDB")
+const taskSC = new mongoose.Schema({
+    name: String
+})
 
-let taskarr = []
+const Item = mongoose.model("Item", taskSC)
 
 app.get("/", (req, res) => {
     let day = ""
@@ -34,16 +39,23 @@ app.get("/", (req, res) => {
             day = "saturday"
             break;
     }
-    day=day.toUpperCase();
-    res.render("list", { day: day, tasks: taskarr })
+    day = day.toUpperCase();
+    Item.find().then((data)=>{
+        res.render("list", { day: day, tasks: data })
+    })
 })
 app.post("/", (req, res) => {
     let newtask = req.body.task;
     if (newtask != "") {
-        taskarr.push(newtask);
+        const task = Item({
+            name: newtask
+        })
+        task.save().then(
+            res.redirect("/")
+        )
     }
-    res.redirect("/",);
 })
+
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("LISTNING ON PORT 3000");
